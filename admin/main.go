@@ -286,7 +286,6 @@ func parseUsers(input string) []string {
 	}
 	return users
 }
-
 func (a *AdminApp) createUserManagementTab() fyne.CanvasObject {
 
 	// --- Управление одним пользователем (существующий функционал) ---
@@ -667,7 +666,63 @@ func (a *AdminApp) createUserManagementTab() fyne.CanvasObject {
 		form.Show()
 	})
 
-	deleteLetterBtn := widget.NewButton("Удалить букву", func() {
+	// НОВАЯ КНОПКА - Переименовать букву
+	renameLetterBtn := widget.NewButton("Переименовать", func() {
+		if letterSelect.Selected == "" {
+			dialog.ShowInformation("Внимание", "Выберите букву, которую хотите переименовать", a.window)
+			return
+		}
+
+		oldLetterStr := letterSelect.Selected
+		oldLetterRune := []rune(oldLetterStr)[0]
+
+		newLetterEntry := widget.NewEntry()
+		newLetterEntry.SetPlaceHolder("Введите новую букву")
+		newLetterEntry.Validator = validation.NewAllStrings(validateSingleLetter) // Используем существующий валидатор
+
+		form := dialog.NewForm(
+			fmt.Sprintf("Переименовать '%s'", oldLetterStr),
+			"Сохранить",
+			"Отмена",
+			[]*widget.FormItem{
+				{Text: "Новая буква", Widget: newLetterEntry},
+			},
+			func(confirmed bool) {
+				if confirmed {
+					if newLetterEntry.Validate() != nil {
+						dialog.ShowError(fmt.Errorf("неверный ввод: введите одну букву"), a.window)
+						return
+					}
+
+					newLetterRune := []rune(newLetterEntry.Text)[0]
+
+					// 1. Получаем ID старой буквы
+					oldLetterID, err := database.GetLetterID(a.db, oldLetterRune)
+					if err != nil {
+						dialog.ShowError(fmt.Errorf("не удалось найти ID для старой буквы: %v", err), a.window)
+						return
+					}
+
+					// 2. Вызываем новую функцию в database (ее нужно будет создать)
+					// Эта функция должна сама проверить уникальность новой буквы
+					err = database.UpdateLetter(a.db, oldLetterID, newLetterRune)
+					if err != nil {
+						// Ошибка сработает, если буква уже существует или другая проблема
+						dialog.ShowError(err, a.window)
+						return
+					}
+
+					dialog.ShowInformation("Успех", fmt.Sprintf("Буква '%s' успешно переименована в '%c'", oldLetterStr, newLetterRune), a.window)
+					updateLetterList()
+					a.refreshAllTabs()
+				}
+			},
+			a.window,
+		)
+		form.Show()
+	})
+
+	deleteLetterBtn := widget.NewButton("Удалить", func() { // ИЗМЕНЕНО: Укоротил текст кнопки
 		if letterSelect.Selected == "" {
 			dialog.ShowInformation("Внимание", "Выберите букву", a.window)
 			return
@@ -764,9 +819,9 @@ func (a *AdminApp) createUserManagementTab() fyne.CanvasObject {
 			addLetterEntry,
 			addLetterBtn,
 		),
-		widget.NewLabel("Удалить букву:"),
+		widget.NewLabel("Управление существующими буквами:"), // ИЗМЕНЕНО: Заголовок
 		letterSelect,
-		deleteLetterBtn,
+		container.NewHBox(renameLetterBtn, deleteLetterBtn), // ИЗМЕНЕНО: Кнопки в HBox
 		widget.NewSeparator(),
 	)
 

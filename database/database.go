@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_ "modernc.org/sqlite"
@@ -262,4 +263,41 @@ func EnsureLetterExists(db *sql.DB, letter rune) (int, error) {
 		return CreateLetter(db, letter)
 	}
 	return id, nil
+}
+
+func UpdateLetter(db *sql.DB, letterID int, newLetter rune) error {
+	newLetterStr := string(newLetter)
+
+	// 1. Проверяем, не существует ли УЖЕ буква, в которую мы переименовываем
+	var existingID int
+
+	// ИЗМЕНЕНО: было "WHERE letter = ?"
+	err := db.QueryRow("SELECT id FROM letters WHERE char = ?", newLetterStr).Scan(&existingID)
+
+	if err == nil {
+		// Буква найдена.
+		// Если это та же самая буква (тот же ID), то ошибки нет, просто ничего не делаем.
+		if existingID == letterID {
+			return nil // Переименование в самого себя
+		}
+		// Если ID другой - значит, такая буква уже занята
+		return fmt.Errorf("буква '%s' уже существует в базе данных", newLetterStr)
+	}
+
+	// Мы ожидаем ошибку "нет строк", это хорошо
+	if err != sql.ErrNoRows {
+		// Если ошибка не "нет строк", а какая-то другая - это плохо
+		return fmt.Errorf("ошибка при проверке существования буквы: %v", err)
+	}
+
+	// 2. Если мы здесь, значит err == sql.ErrNoRows.
+	// Этой буквы нет, и мы можем безопасно обновить старую.
+
+	// ИЗМЕНЕНО: было "SET letter = ?"
+	_, err = db.Exec("UPDATE letters SET char = ? WHERE id = ?", newLetterStr, letterID)
+	if err != nil {
+		return fmt.Errorf("ошибка при обновлении буквы: %v", err)
+	}
+
+	return nil
 }
