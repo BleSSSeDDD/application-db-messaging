@@ -38,11 +38,13 @@
 возможность выдать или удалить права на определенные объекты как 
 одному, так и нескольким субъектам сразу.  
 
-<img width="579" height="401" alt="image" src="https://github.com/user-attachments/assets/93dba729-06c3-4835-9a0a-ef9ee34be3c0" />
+<img width="903" height="626" alt="image" src="https://github.com/user-attachments/assets/b1d1f7bc-ba22-4f7a-a01e-62425a118cd8" />
+
 
 Рис.1 Программа администратора 
 
-<img width="590" height="410" alt="image" src="https://github.com/user-attachments/assets/b4677744-547d-46ff-bedc-e97c1bdb88e0" />
+<img width="927" height="640" alt="image" src="https://github.com/user-attachments/assets/6ed0b20f-f8d5-4926-ab2d-d8bb8e03678d" />
+
 
 Рис.2 Программа администратора 
 
@@ -57,11 +59,13 @@ SQLite, что хорошо подходит для модели взаимод�
 существует ли пользователь с таким именем в базе данных, если существует, то 
 после ввода открывается следующее окно (рис. 4). 
 
-<img width="461" height="332" alt="image" src="https://github.com/user-attachments/assets/657b22e9-8def-4cd2-af8b-a398a057d10d" />
+<img width="727" height="526" alt="image" src="https://github.com/user-attachments/assets/db5cbf9d-e39c-44f2-a047-20fe096d7867" />
+
 
 Рис.3 Программа пользователя 
 
-<img width="456" height="363" alt="image" src="https://github.com/user-attachments/assets/cf6f198b-b7f0-4020-93c1-851885c7b068" />
+<img width="718" height="572" alt="image" src="https://github.com/user-attachments/assets/91240fcd-0483-44f6-af0a-19483ef2d9e8" />
+
 
 Рис.4 Программа пользователя 
 
